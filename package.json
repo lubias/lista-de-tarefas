@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "./index.js",
-    "dev": "npx nodemon ./swagger/autoGenDoc.js",
-    "autoDoc": "node ./swagger/autoGenDoc.js"
+    "dev": "npx nodemon ./swagger/swagger.js",
+    "autoDoc": "node ./swagger/swagger.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
