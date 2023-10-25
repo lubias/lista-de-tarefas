@@ -5,35 +5,34 @@ const connectDB = require("../middleware/connectDB");
 router.use(express.json());
 router.use(connectDB);
 
-router.post("/", (req, res) => {
-  const db = req.dbConnection;
-  const { descricao, concluido } = req.body;
+router.post("/", async (req, res) => {
+  try{
+    const connection = await connectDB();
+    const { descricao, concluido } = req.body;
 
-  const sql = "INSERT INTO tarefas (descricao, concluido) VALUES (?,?)";
-  const values = [descricao, concluido];
+    const sql = "INSERT INTO tarefas (descricao, concluido) VALUES (?,?)";
+    const values = [descricao, concluido];
 
-  db.query(sql, values, (err, results) => {
-    if (err) {
-      console.error("Erro ao criar cliente no banco de dados:", err);
-      return res.status(500).json({ error: err });
-    }
+    const [result] = await connection.query(sql, values);
+    await connection.end();
 
-    res.status(200).json({ data: results });
-  });
+    res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("Error while creating user in database:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-router.get("/", (req, res) => {
-  const db = req.dbConnection;
-  db.query("SELECT * FROM tarefas", (err, results) => {
-    if (err) {
-      console.error("Erro na consulta ao banco de dados:", err);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-
-    res.status(200).json({ data: results });
-
-    db.release();
-  });
+router.get("/", async (req, res) => {
+  try {
+    const connection = await connectDB();
+    const [result] = await connection.query("SELECT * FROM tarefas");
+    await connection.end();
+    res.json({ data: result });
+  } catch (error) {
+    console.error("Error in the database query:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.post("/getByText", (req, res) => {

@@ -1,23 +1,22 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 
-const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: '12345678',
-    database: 'board_task',
-};
+async function connectDB() {
+  try {
+    const connection = await mysql.createConnection({
+      uri: process.env.DATABASE_URL,
+    });
 
-const pool = mysql.createPool(dbConfig);
-
-function connectDB(req, res, next) {
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error('Erro ao conectar ao banco de dados:', err);
-      return res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-    req.dbConnection = connection;
-    next();
-  });
+    console.log('Conectado ao banco de dados!');
+    
+    return connection;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
+
 module.exports = connectDB;
+
+
+
